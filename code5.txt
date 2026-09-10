@@ -1,0 +1,14 @@
+const int relay = 23;
+
+void setup() {
+    pinMode(relay, OUTPUT);
+    digitalWrite(relay, LOW);
+}
+
+void loop() {
+    digitalWrite(relay, HIGH);
+    delay(6000);
+
+    digitalWrite(relay, LOW);
+    delay(2000);
+}
