@@ -1,0 +1,24 @@
+const int buttonPin = 5;
+const int ledPin = 12;
+
+void setup() {
+    pinMode(buttonPin, INPUT_PULLUP);
+    pinMode(ledPin, OUTPUT);
+    digitalWrite(ledPin, LOW);
+    Serial.begin(9600);
+}
+
+void loop() {
+    int buttonState = digitalRead(buttonPin);
+
+    Serial.print("Button State: ");
+    Serial.println(buttonState);
+
+    if (buttonState == LOW) {
+        digitalWrite(ledPin, HIGH);
+    } else {
+        digitalWrite(ledPin, LOW);
+    }
+
+    delay(100);
+}
