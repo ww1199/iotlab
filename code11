@@ -1,0 +1,84 @@
+
+#include <WiFi.h>
+#include <HTTPClient.h>
+
+const char* ssid = "YOUR_WIFI_NAME";
+const char* password = "YOUR_WIFI_PASSWORD";
+
+String apiKey = "YOUR_THINGSPEAK_WRITE_API_KEY";
+
+const char* server = "http://api.thingspeak.com/update";
+
+#define TRIG 4
+#define ECHO 16
+
+void setup() {
+    Serial.begin(9600);
+
+    pinMode(TRIG, OUTPUT);
+    pinMode(ECHO, INPUT);
+
+    digitalWrite(TRIG, LOW);
+
+    WiFi.begin(ssid, password);
+
+    Serial.print("Connecting to Wi-Fi");
+
+    while (WiFi.status() != WL_CONNECTED) {
+        delay(500);
+        Serial.print(".");
+    }
+
+    Serial.println();
+    Serial.println("Wi-Fi Connected!");
+
+    Serial.print("IP Address: ");
+    Serial.println(WiFi.localIP());
+}
+
+void loop() {
+    digitalWrite(TRIG, LOW);
+    delayMicroseconds(2);
+
+    digitalWrite(TRIG, HIGH);
+    delayMicroseconds(10);
+
+    digitalWrite(TRIG, LOW);
+
+    long duration = pulseIn(ECHO, HIGH, 30000);
+
+    float distance = (duration * 0.0343) / 2.0;
+
+    Serial.print("Distance in CM: ");
+    Serial.println(distance);
+
+    if (WiFi.status() == WL_CONNECTED) {
+        HTTPClient http;
+
+        String url = String(server) +
+                     "?api_key=" + apiKey +
+                     "&field1=" + String(distance);
+
+        Serial.println("Sending Data to ThingSpeak...");
+
+        http.begin(url);
+
+        int httpCode = http.GET();
+
+        Serial.print("HTTP Response Code: ");
+        Serial.println(httpCode);
+
+        if (httpCode > 0) {
+            String response = http.getString();
+
+            Serial.print("ThingSpeak Response: ");
+            Serial.println(response);
+        } else {
+            Serial.println("Error Sending Data");
+        }
+
+        http.end();
+    }
+
+    delay(15000);
+}
