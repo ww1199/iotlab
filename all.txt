@@ -1,0 +1,1145 @@
+============================================================
+EXPERIMENT 2
+DEVELOP A PROGRAM TO ILLUSTRATE THE WORKING OF LED
+WITH A PUSH BUTTON
+============================================================
+
+AIM:
+Interface a push button and an RGB LED with ESP32. Pressing the button turns the red LED ON and releasing it turns the LED OFF.
+
+HARDWARE:
+- ESP32 DevKit
+- ESP32 Trainer Board
+- USB Cable
+- Jumper Wires
+- Computer/Laptop with Arduino IDE
+
+PIN CONNECTIONS:
+- Push Button / SW1 -> GPIO 5
+- Red LED / C2 -> GPIO 12
+- Trainer 3.3V -> ESP32 3.3V
+- Trainer GND -> ESP32 GND
+
+SETUP:
+1. Connect GPIO5 to SW1.
+2. Connect GPIO12 to C2 (Red LED).
+3. Connect 3.3V and GND correctly.
+4. Select ESP32 Dev Module.
+5. Select the correct COM port.
+6. Serial Monitor baud = 9600.
+
+CREATE SKETCH:
+exp2_push_button.ino
+
+CODE START
+const int buttonPin = 5;
+const int ledPin = 12;
+
+void setup() {
+    pinMode(buttonPin, INPUT_PULLUP);
+    pinMode(ledPin, OUTPUT);
+    digitalWrite(ledPin, LOW);
+    Serial.begin(9600);
+}
+
+void loop() {
+    int buttonState = digitalRead(buttonPin);
+
+    Serial.print("Button State: ");
+    Serial.println(buttonState);
+
+    if (buttonState == LOW) {
+        digitalWrite(ledPin, HIGH);
+    } else {
+        digitalWrite(ledPin, LOW);
+    }
+
+    delay(100);
+}
+CODE END
+
+PROCEDURE:
+1. Upload the program.
+2. Open Serial Monitor at 9600 baud.
+3. Keep button released.
+4. Press the push button.
+5. Release it.
+6. Observe the LED and serial value.
+
+OBSERVATION:
+Released -> HIGH -> Serial 1 -> LED OFF
+Pressed  -> LOW  -> Serial 0 -> LED ON
+
+EXPECTED:
+When pressed:
+Button State: 0
+LED ON
+
+When released:
+Button State: 1
+LED OFF
+
+RESULT:
+The push button was successfully interfaced with ESP32 and the red LED was controlled using digital input and digital output.
+
+
+============================================================
+EXPERIMENT 3
+DETECTION OF LIGHT USING A PHOTO RESISTOR (LDR)
+============================================================
+
+AIM:
+Measure light intensity using an LDR connected to an ESP32 analog input and display the ADC reading.
+
+HARDWARE:
+- ESP32 IoT Trainer Board
+- USB Cable
+- Jumper Wires
+- LDR sensor
+- Computer with Arduino IDE
+
+PIN CONNECTIONS:
+- LDR VCC -> 3.3V
+- LDR GND -> GND
+- LDR O/P -> GPIO 2
+
+CREATE SKETCH:
+exp3_ldr.ino
+
+CODE START
+const int LDR_PIN = 2;
+
+void setup() {
+    Serial.begin(115200);
+    pinMode(LDR_PIN, INPUT);
+}
+
+void loop() {
+    int ldrValue = analogRead(LDR_PIN);
+
+    Serial.print("LDR Value: ");
+    Serial.println(ldrValue);
+
+    delay(500);
+}
+CODE END
+
+NOTE:
+The original manual had 115200 in the procedure but 9600 in the code. This version uses 115200 consistently.
+
+PROCEDURE:
+1. Connect LDR output to GPIO2.
+2. Connect 3.3V and GND.
+3. Select ESP32 Dev Module and COM port.
+4. Upload the sketch.
+5. Open Serial Monitor at 115200.
+6. Shine a flashlight on the LDR.
+7. Cover the LDR with your hand.
+8. Compare the displayed readings.
+
+SAMPLE OBSERVATION FROM THE MANUAL:
+Bright Light -> about 800
+Normal Room Light -> about 1500
+Covered with Hand -> about 3400
+
+IMPORTANT:
+Actual values vary with the specific sensor and calibration. Record your actual readings during the exam.
+
+RESULT:
+The LDR was successfully interfaced with ESP32 and changes in light intensity were displayed using ADC readings.
+
+
+============================================================
+EXPERIMENT 4
+INTERFACING A TEMPERATURE AND HUMIDITY SENSOR (DHT11)
+WITH ESP32
+============================================================
+
+AIM:
+Measure temperature and humidity using a DHT11 sensor and display the readings on the Serial Monitor.
+
+HARDWARE:
+- ESP32 Development Board
+- DHT11 sensor
+- USB Cable
+- Jumper Wires
+- Arduino IDE
+- Computer/Laptop
+
+PIN CONNECTION:
+- DHT11 DATA/OUPUT -> GPIO 4
+- DHT11 VCC -> 3.3V
+- DHT11 GND -> GND
+
+LIBRARIES:
+Install using:
+Sketch -> Include Library -> Manage Libraries
+
+Install:
+- DHT sensor library by Adafruit
+- Adafruit Unified Sensor by Adafruit
+
+CREATE SKETCH:
+exp4_dht11.ino
+
+CODE START
+#include <DHT.h>
+
+#define DHTPIN 4
+#define DHTTYPE DHT11
+
+DHT dht(DHTPIN, DHTTYPE);
+
+void setup() {
+    Serial.begin(115200);
+    Serial.println("Initializing DHT11...");
+
+    dht.begin();
+
+    delay(2000);
+}
+
+void loop() {
+    float humidity = dht.readHumidity();
+    float temperature = dht.readTemperature();
+
+    if (isnan(humidity) || isnan(temperature)) {
+        Serial.println("Failed to read from DHT11!");
+    } else {
+        Serial.print("Temperature: ");
+        Serial.print(temperature);
+        Serial.println(" °C");
+
+        Serial.print("Humidity: ");
+        Serial.print(humidity);
+        Serial.println(" %");
+
+        Serial.println("---------------------------");
+    }
+
+    delay(2000);
+}
+CODE END
+
+PROCEDURE:
+1. Connect DHT11 DATA to GPIO4.
+2. Turn ON the trainer-board DIP switch for DHT11 if applicable.
+3. The sensor power indicator should glow.
+4. Select ESP32 Dev Module.
+5. Select COM port.
+6. Install libraries.
+7. Compile and upload.
+8. Open Serial Monitor at 115200.
+9. Observe temperature and humidity about every 2 seconds.
+
+COMMON ERROR:
+If "Failed to read from DHT11!" or NaN appears:
+- Check DATA -> GPIO4.
+- Check VCC/GND.
+- Check DIP switch.
+- Check both libraries.
+- Wait a few seconds after reset.
+
+RESULT:
+DHT11 was successfully interfaced with ESP32 and temperature/humidity were displayed on the Serial Monitor.
+
+
+============================================================
+EXPERIMENT 5
+INTERFACING OF THE RELAY WITH ESP32
+============================================================
+
+AIM:
+Control a relay using ESP32 GPIO23 so that a connected LED stays ON for 6 seconds and OFF for 2 seconds continuously.
+
+HARDWARE:
+- ESP32 Development Board
+- Relay Module
+- LED
+- Jumper Wires
+- USB Cable
+- Computer/Laptop
+
+PIN CONNECTIONS:
+- ESP32 Vin -> Relay COM
+- Relay NO -> LED
+- ESP32 GPIO23 -> RLY1 or RLY2
+
+IMPORTANT:
+Turn ON the power switch of the relay module before operating the experiment.
+
+CREATE SKETCH:
+exp5_relay.ino
+
+CODE START
+const int relay = 23;
+
+void setup() {
+    pinMode(relay, OUTPUT);
+    digitalWrite(relay, LOW);
+}
+
+void loop() {
+    digitalWrite(relay, HIGH);
+    delay(6000);
+
+    digitalWrite(relay, LOW);
+    delay(2000);
+}
+CODE END
+
+PROCEDURE:
+1. Connect Vin -> relay COM.
+2. Connect relay NO -> LED.
+3. Connect GPIO23 -> selected relay input.
+4. Turn ON relay-module power.
+5. Select ESP32 board and COM port.
+6. Upload the sketch.
+7. Observe the LED.
+
+OBSERVATION:
+Relay ON -> 6 seconds
+Relay OFF -> 2 seconds
+Then repeats.
+
+RESULT:
+The relay was successfully controlled using GPIO23 and the connected LED was switched ON for 6 seconds and OFF for 2 seconds repeatedly.
+
+
+============================================================
+EXPERIMENT 6
+SEND AND RECEIVE DATA WITH ESP32 USING HTTP REQUEST
+============================================================
+
+AIM:
+Demonstrate HTTP POST to send data from ESP32 to a temporary server and HTTP GET to receive data from a public server.
+
+CONCEPT:
+HTTP GET -> retrieve data
+HTTP POST -> send data
+
+REQUIREMENTS:
+- ESP32
+- Arduino IDE
+- Wi-Fi
+- Browser
+- Webhook.site
+
+PART A - HTTP POST
+
+STEP 1:
+Connect ESP32 and select:
+- Board: ESP32 Dev Module
+- Correct COM port
+
+STEP 2:
+Connect ESP32 to Wi-Fi using:
+- Mobile hotspot, or
+- College Wi-Fi, or
+- Home router
+
+STEP 3:
+Open:
+https://webhook.site
+
+Webhook.site generates a unique URL.
+
+Example:
+https://webhook.site/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+
+Copy the complete URL.
+
+STEP 4:
+Create sketch:
+exp6_http_post.ino
+
+CODE START
+#include <WiFi.h>
+#include <HTTPClient.h>
+
+const char* ssid = "YOUR_WIFI_NAME";
+const char* password = "YOUR_WIFI_PASSWORD";
+
+String serverURL = "PASTE_YOUR_WEBHOOK_URL_HERE";
+
+void sendData();
+
+void setup() {
+    Serial.begin(115200);
+
+    WiFi.begin(ssid, password);
+
+    Serial.print("Connecting to WiFi");
+
+    while (WiFi.status() != WL_CONNECTED) {
+        delay(500);
+        Serial.print(".");
+    }
+
+    Serial.println();
+    Serial.println("WiFi Connected");
+
+    sendData();
+}
+
+void loop() {
+}
+
+void sendData() {
+    if (WiFi.status() == WL_CONNECTED) {
+        HTTPClient http;
+
+        http.begin(serverURL);
+        http.addHeader("Content-Type", "application/json");
+
+        String jsonData =
+            "{\"sensor\":\"Temperature\",\"value\":28.5}";
+
+        int responseCode = http.POST(jsonData);
+
+        Serial.print("HTTP Response Code : ");
+        Serial.println(responseCode);
+
+        String response = http.getString();
+
+        Serial.println("Server Response:");
+        Serial.println(response);
+
+        http.end();
+    }
+}
+CODE END
+
+STEP 5:
+Replace:
+YOUR_WIFI_NAME
+YOUR_WIFI_PASSWORD
+PASTE_YOUR_WEBHOOK_URL_HERE
+
+STEP 6:
+Compile and upload.
+
+STEP 7:
+Open Serial Monitor at 115200.
+
+EXPECTED:
+Connecting to WiFi....
+WiFi Connected
+HTTP Response Code : 200
+Server Response:
+OK
+
+STEP 8:
+Return to Webhook.site.
+Open the new request.
+You should see JSON similar to:
+{"sensor":"Temperature","value":28.5}
+
+PART B - HTTP GET
+
+CREATE SKETCH:
+exp6_http_get.ino
+
+CODE START
+#include <WiFi.h>
+#include <HTTPClient.h>
+
+const char* ssid = "YOUR_WIFI_NAME";
+const char* password = "YOUR_WIFI_PASSWORD";
+
+String serverURL =
+    "https://jsonplaceholder.typicode.com/todos/1";
+
+void receiveData();
+
+void setup() {
+    Serial.begin(115200);
+
+    WiFi.begin(ssid, password);
+
+    Serial.print("Connecting");
+
+    while (WiFi.status() != WL_CONNECTED) {
+        delay(500);
+        Serial.print(".");
+    }
+
+    Serial.println();
+    Serial.println("WiFi Connected");
+
+    receiveData();
+}
+
+void loop() {
+}
+
+void receiveData() {
+    if (WiFi.status() == WL_CONNECTED) {
+        HTTPClient http;
+
+        http.begin(serverURL);
+
+        int httpCode = http.GET();
+
+        Serial.print("HTTP Response Code : ");
+        Serial.println(httpCode);
+
+        if (httpCode > 0) {
+            String payload = http.getString();
+
+            Serial.println();
+            Serial.println("Data Received:");
+            Serial.println(payload);
+        }
+
+        http.end();
+    }
+}
+CODE END
+
+PROCEDURE:
+1. Replace Wi-Fi credentials.
+2. Upload the code.
+3. Open Serial Monitor at 115200.
+4. Wait for Wi-Fi.
+5. Observe the HTTP response.
+
+EXPECTED:
+Connecting...
+WiFi Connected
+HTTP Response Code : 200
+Data Received:
+{
+  "userId": 1,
+  "id": 1,
+  "title": "delectus aut autem",
+  "completed": false
+}
+
+RESULT:
+ESP32 successfully sent JSON data using HTTP POST and retrieved JSON data using HTTP GET.
+
+
+============================================================
+EXPERIMENT 7
+ROOM TEMPERATURE MONITORING AND POSTING TEMPERATURE
+TO THINGSPEAK CLOUD
+============================================================
+
+AIM:
+Measure room temperature using DHT11 + ESP32 and send the temperature to ThingSpeak using HTTP.
+
+DATA FLOW:
+Room Temperature
+-> DHT11
+-> ESP32
+-> Wi-Fi
+-> HTTP GET
+-> ThingSpeak
+-> Temperature Graph
+
+HARDWARE:
+- ESP32 Advanced Trainer Kit
+- USB Cable
+- Arduino IDE
+- DHT11
+- Wi-Fi
+- ThingSpeak account
+
+PIN CONNECTION:
+- DHT11 DATA -> GPIO4
+- DHT11 VCC -> 3.3V
+- DHT11 GND -> GND
+
+STEP 1 - THINGSPEAK ACCOUNT
+
+Open:
+https://thingspeak.com
+
+Create/login to account.
+
+STEP 2 - CREATE CHANNEL
+
+Channels -> My Channels -> New Channel
+
+Use:
+Channel Name: Room Temperature Monitor
+Field 1: Temperature (°C)
+
+Save channel.
+
+STEP 3 - COPY WRITE API KEY
+
+Channels -> My Channel -> your channel -> API Keys
+
+Copy:
+Write API Key
+
+DO NOT SHARE THE API KEY.
+
+STEP 4 - INSTALL DHTesp
+
+Arduino IDE:
+Sketch -> Include Library -> Manage Libraries
+
+Search:
+DHTesp
+
+Install:
+DHT sensor library for ESPx by beegee_tokyo
+
+STEP 5 - CREATE SKETCH
+
+exp7_thingspeak_temperature.ino
+
+CODE START
+#include <WiFi.h>
+#include <HTTPClient.h>
+#include <DHTesp.h>
+
+const char* ssid = "WIFI_NAME";
+const char* password = "WIFI_PASSWORD";
+
+String apiKey = "PASTE_THINGSPEAK_WRITE_API_KEY";
+
+const char* server = "http://api.thingspeak.com/update";
+
+const int DHT_PIN = 4;
+
+DHTesp dht;
+
+void setup() {
+    Serial.begin(115200);
+
+    dht.setup(DHT_PIN, DHTesp::DHT11);
+
+    WiFi.begin(ssid, password);
+
+    Serial.print("Connecting to Wi-Fi");
+
+    while (WiFi.status() != WL_CONNECTED) {
+        delay(500);
+        Serial.print(".");
+    }
+
+    Serial.println();
+    Serial.println("Wi-Fi Connected!");
+}
+
+void loop() {
+    TempAndHumidity data = dht.getTempAndHumidity();
+
+    float temperature = data.temperature;
+
+    if (isnan(temperature)) {
+        Serial.println("Failed to read from DHT11!");
+    } else {
+        Serial.print("Temperature : ");
+        Serial.print(temperature);
+        Serial.println(" °C");
+
+        if (WiFi.status() == WL_CONNECTED) {
+            HTTPClient http;
+
+            String url = String(server) +
+                         "?api_key=" + apiKey +
+                         "&field1=" + String(temperature);
+
+            Serial.println();
+            Serial.print("Sending Data to ThingSpeak...");
+            Serial.println(url);
+
+            http.begin(url);
+
+            int httpCode = http.GET();
+
+            Serial.print("HTTP Response Code : ");
+            Serial.println(httpCode);
+
+            if (httpCode > 0) {
+                String response = http.getString();
+
+                Serial.print("ThingSpeak Response : ");
+                Serial.println(response);
+            } else {
+                Serial.println("Error Sending Data");
+            }
+
+            http.end();
+        }
+    }
+
+    delay(20000);
+}
+CODE END
+
+IMPORTANT:
+ThingSpeak free channels require spacing between updates. Keep the 20-second delay used by the supplied experiment.
+
+STEP 6:
+Replace:
+WIFI_NAME
+WIFI_PASSWORD
+PASTE_THINGSPEAK_WRITE_API_KEY
+
+STEP 7:
+Compile and upload.
+
+SERIAL MONITOR:
+115200
+
+EXPECTED:
+Connecting to WiFi...
+WiFi Connected!
+Temperature: 29°C
+Sending Data to ThingSpeak...
+HTTP Response Code: 200
+ThingSpeak Response: 1
+
+RESULT:
+Temperature data was successfully read by ESP32 and uploaded to ThingSpeak for cloud monitoring.
+
+
+============================================================
+EXPERIMENT 8
+MEASURE SOIL MOISTURE USING ESP32 AND TRANSMIT DATA
+TO THINGSPEAK
+============================================================
+
+AIM:
+Read an analog soil-moisture value using ESP32 GPIO34, classify the soil as DRY/WET using threshold 2000, and upload the value to ThingSpeak.
+
+PIN CONNECTION:
+- Soil sensor VCC -> 3.3V
+- Soil sensor GND -> GND
+- Soil sensor AO -> GPIO34
+- Two probe wires -> the two sensor-module terminals
+  (the probe is resistive, so either wire can go to either terminal)
+
+HARDWARE:
+- ESP32 Development Board
+- Soil Moisture Sensor Module
+- Two-Pin Moisture Probe
+- Jumper Wires
+- USB Cable
+- Wi-Fi
+- ThingSpeak
+- Arduino IDE
+
+CREATE CHANNEL:
+1. Login to ThingSpeak.
+2. Create a new channel.
+3. Enable Field 1.
+4. Use a name such as:
+   Soil Moisture
+5. Copy the Write API Key.
+
+CREATE SKETCH:
+exp8_soil_moisture.ino
+
+CODE START
+#define MOISTURE_SENSOR_PIN 34
+
+#include <WiFi.h>
+#include <HTTPClient.h>
+
+const char* ssid = "YOUR_WIFI_SSID";
+const char* password = "YOUR_WIFI_PASSWORD";
+
+String apiKey = "YOUR_THINGSPEAK_WRITE_API_KEY";
+
+const char* server = "http://api.thingspeak.com/update";
+
+void setup() {
+    Serial.begin(9600);
+    delay(1000);
+
+    Serial.println("Soil Moisture Monitoring Started");
+
+    WiFi.begin(ssid, password);
+
+    Serial.print("Connecting to Wi-Fi");
+
+    while (WiFi.status() != WL_CONNECTED) {
+        delay(500);
+        Serial.print(".");
+    }
+
+    Serial.println();
+    Serial.println("Wi-Fi Connected!");
+}
+
+void loop() {
+    int moistureValue = analogRead(MOISTURE_SENSOR_PIN);
+
+    Serial.print("Moisture Sensor Value: ");
+    Serial.println(moistureValue);
+
+    if (moistureValue > 2000) {
+        Serial.println("Soil Condition: DRY");
+    } else {
+        Serial.println("Soil Condition: WET");
+    }
+
+    Serial.println("----------------------");
+
+    if (WiFi.status() == WL_CONNECTED) {
+        HTTPClient http;
+
+        String url = String(server) +
+                     "?api_key=" + apiKey +
+                     "&field1=" + String(moistureValue);
+
+        http.begin(url);
+
+        int httpCode = http.GET();
+
+        Serial.print("HTTP Response Code: ");
+        Serial.println(httpCode);
+
+        if (httpCode > 0) {
+            Serial.println(
+                "Data sent to ThingSpeak successfully"
+            );
+        } else {
+            Serial.println("Error Sending Data");
+        }
+
+        http.end();
+    }
+
+    delay(2000);
+}
+CODE END
+
+PROCEDURE:
+1. Select ESP32 Dev Module.
+2. Select correct COM port.
+3. Connect VCC -> 3.3V.
+4. Connect GND -> GND.
+5. Connect AO -> GPIO34.
+6. Connect the probe to the sensor module.
+7. Enter Wi-Fi credentials.
+8. Enter ThingSpeak Write API Key.
+9. Compile and upload.
+10. Open Serial Monitor at 9600.
+11. Put probe in dry soil.
+12. Record value.
+13. Put probe in wet soil.
+14. Record value.
+15. Compare with threshold 2000.
+16. Check ThingSpeak Field 1.
+17. Observe graph.
+
+SAMPLE OUTPUT FROM MANUAL:
+Moisture Sensor Value: 2548
+Soil Condition: DRY
+HTTP Response Code: 200
+Data sent to ThingSpeak successfully
+
+Moisture Sensor Value: 1256
+Soil Condition: WET
+HTTP Response Code: 200
+Data sent to ThingSpeak successfully
+
+IMPORTANT:
+Actual sensor values vary with soil condition and calibration.
+
+NOTE ABOUT SOURCE FIX:
+The supplied code printed "Moisture-Based Waste Classification Started..." which is inconsistent with the experiment topic. This version uses:
+"Soil Moisture Monitoring Started"
+
+RESULT:
+Soil moisture was measured, classified as DRY/WET using threshold 2000, and transmitted to ThingSpeak.
+
+
+============================================================
+EXPERIMENT 9
+BUILDING AN INTRUSION DETECTION SYSTEM USING
+ESP32 + ULTRASONIC SENSOR
+============================================================
+
+AIM:
+Measure object distance using an ultrasonic sensor. If an object is detected within 20 cm, turn ON an LED and buzzer and display an intruder alert.
+
+PIN CONNECTIONS:
+- TRIG -> GPIO 4
+- ECHO -> GPIO 16
+- LED -> GPIO 22
+- Buzzer -> GPIO 23
+- ESP32 VIN -> 5V on trainer board
+- ESP32 GND -> GND
+
+DETECTION THRESHOLD:
+20 cm
+
+HARDWARE:
+- ESP32 IoT Trainer Board
+- Ultrasonic Sensor
+- LED
+- Buzzer
+- Jumper Wires
+- USB Cable
+- Computer with Arduino IDE
+
+PROCEDURE:
+1. Connect USB.
+2. TRIG -> GPIO4.
+3. ECHO -> GPIO16.
+4. LED -> GPIO22.
+5. Buzzer -> GPIO23.
+6. VIN -> 5V terminal.
+7. GND -> GND.
+8. Turn ON required DIP switch.
+9. Select ESP32 Dev Module.
+10. Select correct COM port.
+11. Upload code.
+12. Open Serial Monitor at 9600.
+13. Put an object near the sensor.
+14. Move it beyond 20 cm.
+15. Observe LED, buzzer, and serial message.
+
+CREATE SKETCH:
+exp9_intrusion.ino
+
+CODE START
+#define TRIG 4
+#define ECHO 16
+#define LED 22
+#define BUZ 23
+
+long duration;
+float distance;
+
+void setup() {
+    Serial.begin(9600);
+
+    pinMode(TRIG, OUTPUT);
+    pinMode(ECHO, INPUT);
+    pinMode(LED, OUTPUT);
+    pinMode(BUZ, OUTPUT);
+
+    digitalWrite(TRIG, LOW);
+    digitalWrite(LED, LOW);
+    digitalWrite(BUZ, LOW);
+}
+
+void loop() {
+    digitalWrite(TRIG, LOW);
+    delayMicroseconds(2);
+
+    digitalWrite(TRIG, HIGH);
+    delayMicroseconds(10);
+
+    digitalWrite(TRIG, LOW);
+
+    duration = pulseIn(ECHO, HIGH);
+
+    distance = duration * 0.0343 / 2;
+
+    Serial.print("Distance in CM: ");
+    Serial.println(distance);
+
+    if (distance <= 20 && distance > 0) {
+        digitalWrite(LED, HIGH);
+        digitalWrite(BUZ, HIGH);
+
+        Serial.println("INTRUDER DETECTED!");
+    } else {
+        digitalWrite(LED, LOW);
+        digitalWrite(BUZ, LOW);
+    }
+
+    delay(1000);
+}
+CODE END
+
+EXPECTED WHEN OBJECT IS NEAR:
+Distance: about 15 cm
+INTRUDER DETECTED!
+LED: ON
+BUZZER: ON
+
+EXPECTED WHEN OBJECT IS FAR:
+Distance: about 35 cm
+No Intruder Detected
+LED: OFF
+BUZZER: OFF
+
+RESULT:
+The ultrasonic sensor successfully detected objects within 20 cm and activated the LED and buzzer as an intruder alert.
+
+
+============================================================
+EXPERIMENT 10
+NOT PRESENT IN THE SUPPLIED MANUAL
+============================================================
+
+STATUS:
+SKIPPED.
+
+The supplied 60-page manual contains Experiment 9 and then Experiment 11. No Experiment 10 heading/procedure/code was found.
+
+DO NOT INVENT OR USE A RANDOM EXPERIMENT 10 IN THE EXAM.
+
+
+============================================================
+EXPERIMENT 11
+MEASURE DISTANCE USING ULTRASONIC SENSOR AND POST
+THE DISTANCE VALUE TO THINGSPEAK CLOUD
+============================================================
+
+AIM:
+Measure distance with an ultrasonic sensor, display the distance locally, and upload it to ThingSpeak through Wi-Fi using HTTP GET.
+
+PIN CONNECTIONS:
+- TRIG -> GPIO 4
+- ECHO -> GPIO 16
+- ESP32 VIN -> 5V trainer-board terminal
+- ESP32 GND -> GND
+
+THINGSPEAK:
+1. Login/create account:
+   https://thingspeak.com
+2. Create a new channel.
+3. Enable Field 1.
+4. Name Field 1:
+   Distance
+5. Save.
+6. Go to API Keys.
+7. Copy the Write API Key.
+
+IMPORTANT:
+The source PDF visibly contains example Wi-Fi/API values. Do NOT copy those values.
+Use your own:
+- Wi-Fi SSID
+- Wi-Fi password
+- ThingSpeak Write API key
+
+CREATE SKETCH:
+exp11_ultrasonic_thingspeak.ino
+
+CODE START
+#include <WiFi.h>
+#include <HTTPClient.h>
+
+const char* ssid = "YOUR_WIFI_NAME";
+const char* password = "YOUR_WIFI_PASSWORD";
+
+String apiKey = "YOUR_THINGSPEAK_WRITE_API_KEY";
+
+const char* server = "http://api.thingspeak.com/update";
+
+#define TRIG 4
+#define ECHO 16
+
+void setup() {
+    Serial.begin(9600);
+
+    pinMode(TRIG, OUTPUT);
+    pinMode(ECHO, INPUT);
+
+    digitalWrite(TRIG, LOW);
+
+    WiFi.begin(ssid, password);
+
+    Serial.print("Connecting to Wi-Fi");
+
+    while (WiFi.status() != WL_CONNECTED) {
+        delay(500);
+        Serial.print(".");
+    }
+
+    Serial.println();
+    Serial.println("Wi-Fi Connected!");
+
+    Serial.print("IP Address: ");
+    Serial.println(WiFi.localIP());
+}
+
+void loop() {
+    digitalWrite(TRIG, LOW);
+    delayMicroseconds(2);
+
+    digitalWrite(TRIG, HIGH);
+    delayMicroseconds(10);
+
+    digitalWrite(TRIG, LOW);
+
+    long duration = pulseIn(ECHO, HIGH, 30000);
+
+    float distance = (duration * 0.0343) / 2.0;
+
+    Serial.print("Distance in CM: ");
+    Serial.println(distance);
+
+    if (WiFi.status() == WL_CONNECTED) {
+        HTTPClient http;
+
+        String url = String(server) +
+                     "?api_key=" + apiKey +
+                     "&field1=" + String(distance);
+
+        Serial.println("Sending Data to ThingSpeak...");
+
+        http.begin(url);
+
+        int httpCode = http.GET();
+
+        Serial.print("HTTP Response Code: ");
+        Serial.println(httpCode);
+
+        if (httpCode > 0) {
+            String response = http.getString();
+
+            Serial.print("ThingSpeak Response: ");
+            Serial.println(response);
+        } else {
+            Serial.println("Error Sending Data");
+        }
+
+        http.end();
+    }
+
+    delay(15000);
+}
+CODE END
+
+PROCEDURE:
+1. Connect TRIG -> GPIO4.
+2. Connect ECHO -> GPIO16.
+3. Connect VIN -> 5V.
+4. Connect GND -> GND.
+5. Turn ON the required trainer-board DIP switch.
+6. Select ESP32 Dev Module.
+7. Select correct COM port.
+8. Replace Wi-Fi SSID/password.
+9. Replace ThingSpeak Write API Key.
+10. Upload code.
+11. Open Serial Monitor at 9600.
+12. Check Wi-Fi connection.
+13. Place an object in front of sensor.
+14. Observe distance.
+15. Move object closer/farther.
+16. Check ThingSpeak Field 1.
+17. Observe graph.
+
+EXPECTED:
+Connecting to Wi-Fi....
+Wi-Fi Connected!
+Distance in CM: 15.42
+Sending Data to ThingSpeak...
+HTTP Response Code: 200
+ThingSpeak Response: 1
+
+Another sample:
+Distance in CM: 23.67
+Sending Data to ThingSpeak...
+HTTP Response Code: 200
+ThingSpeak Response: 2
+
+IMPORTANT:
+Actual distance values will vary depending on object position.
+
+RESULT:
+The ultrasonic sensor successfully measured distance and uploaded the measured values to ThingSpeak using Wi-Fi and HTTP.
