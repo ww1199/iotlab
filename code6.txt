@@ -1,0 +1,113 @@
+#include <WiFi.h>
+#include <HTTPClient.h>
+
+const char* ssid = "YOUR_WIFI_NAME";
+const char* password = "YOUR_WIFI_PASSWORD";
+
+String serverURL = "PASTE_YOUR_WEBHOOK_URL_HERE";
+
+void sendData();
+
+void setup() {
+    Serial.begin(115200);
+
+    WiFi.begin(ssid, password);
+
+    Serial.print("Connecting to WiFi");
+
+    while (WiFi.status() != WL_CONNECTED) {
+        delay(500);
+        Serial.print(".");
+    }
+
+    Serial.println();
+    Serial.println("WiFi Connected");
+
+    sendData();
+}
+
+void loop() {
+}
+
+void sendData() {
+    if (WiFi.status() == WL_CONNECTED) {
+        HTTPClient http;
+
+        http.begin(serverURL);
+        http.addHeader("Content-Type", "application/json");
+
+        String jsonData =
+            "{\"sensor\":\"Temperature\",\"value\":28.5}";
+
+        int responseCode = http.POST(jsonData);
+
+        Serial.print("HTTP Response Code : ");
+        Serial.println(responseCode);
+
+        String response = http.getString();
+
+        Serial.println("Server Response:");
+        Serial.println(response);
+
+        http.end();
+    }
+}
+
+
+
+PART B - HTTP GET
+
+#include <WiFi.h>
+#include <HTTPClient.h>
+
+const char* ssid = "YOUR_WIFI_NAME";
+const char* password = "YOUR_WIFI_PASSWORD";
+
+String serverURL =
+    "https://jsonplaceholder.typicode.com/todos/1";
+
+void receiveData();
+
+void setup() {
+    Serial.begin(115200);
+
+    WiFi.begin(ssid, password);
+
+    Serial.print("Connecting");
+
+    while (WiFi.status() != WL_CONNECTED) {
+        delay(500);
+        Serial.print(".");
+    }
+
+    Serial.println();
+    Serial.println("WiFi Connected");
+
+    receiveData();
+}
+
+void loop() {
+}
+
+void receiveData() {
+    if (WiFi.status() == WL_CONNECTED) {
+        HTTPClient http;
+
+        http.begin(serverURL);
+
+        int httpCode = http.GET();
+
+        Serial.print("HTTP Response Code : ");
+        Serial.println(httpCode);
+
+        if (httpCode > 0) {
+            String payload = http.getString();
+
+            Serial.println();
+            Serial.println("Data Received:");
+            Serial.println(payload);
+        }
+
+        http.end();
+    }
+}
